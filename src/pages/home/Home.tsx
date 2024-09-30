@@ -3,6 +3,7 @@ import "./home.css";
 import { deleteStudent, getStudentsList } from "../../lib/appWrite";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { SpinningCircles } from "react-loading-icons";
+import ConfirmModal from "../../components/confirmModal";
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,6 +14,8 @@ const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState<string | null>(null); // Search term state
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   // Load page from query params or set default page=1
   useEffect(() => {
     console.log(searchParams.get("page"), searchParams.get("search"));
@@ -20,44 +23,46 @@ const HomePage = () => {
     const search = searchParams.get("search") ?? "";
     const pageNumber = pageParam ? Number(pageParam) : 1;
     setSearchParams({ page: pageParam.toString(), search: search });
+
     setSearchTerm(search);
     setCurrentPage(pageNumber);
     setSearchQuery(search);
   }, [searchParams, setSearchParams]);
-
-  // Fetch students whenever currentPage or searchTerm changes
-  useEffect(() => {
-    async function getStudents() {
-      setIsLoading(true);
-      if (searchParams != null && currentPage != null) {
-        const response = await getStudentsList(currentPage, searchTerm ?? ""); // Pass searchTerm to API
-        if (response) {
-          setStudents(response.documents);
-          setHasNext(response.hasNext);
+    useEffect(() => {
+      async function getStudents() {
+        setIsLoading(true);
+        if (searchParams != null && currentPage != null) {
+          const response = await getStudentsList(currentPage, searchTerm ?? ""); // Pass searchTerm to API
+          if (response) {
+            setStudents(response.documents);
+            setHasNext(response.hasNext);
+          }
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
-    }
-    getStudents();
-  }, [currentPage, searchTerm]);
+      getStudents();
+    }, [currentPage, searchTerm]);
 
   // Handle delete operation
-  const handleDelete = async (id: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this student?"
-    );
-    if (confirmed) {
+  const handleDelete = async () => {
+    if (studentToDelete) {
       try {
-        await deleteStudent(id);
+        await deleteStudent(studentToDelete);
         setStudents((prevStudents) =>
-          prevStudents.filter((student) => student.$id !== id)
+          prevStudents.filter((student) => student.$id !== studentToDelete)
         );
       } catch (error) {
         console.error("Error deleting student", error);
       }
+      setIsModalOpen(false); // Close the modal
+      setStudentToDelete(null);
     }
   };
 
+  const openDeleteModal = (id: string) => {
+    setStudentToDelete(id);
+    setIsModalOpen(true);
+  };
   // Handle search
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page on new search
@@ -124,7 +129,7 @@ const HomePage = () => {
                       {item.studentName}
                     </div>
                     <div className="text-gray-700 max-sm:text-sm">
-                      Admission No: {item.admissionNumber ||'N/A'}
+                      Admission No: {item.admissionNumber || "N/A"}
                     </div>
                   </div>
                 </div>
@@ -136,7 +141,7 @@ const HomePage = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item.$id)}
+                    onClick={() => openDeleteModal(item.$id)}
                     className="btn !px-3 !py-1 !text-lg !bg-red-600"
                   >
                     Delete
@@ -180,6 +185,11 @@ const HomePage = () => {
           </div>
         )}
       </div>
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };
