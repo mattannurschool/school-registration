@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import './loginPage.css'
+import "./loginPage.css";
 import { login } from "../../lib/appWrite";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingButton from "../../components/LoadingButton";
@@ -10,14 +10,14 @@ const Login = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [formError, setFormError] = useState("");
-  const [isLoading,setIsLoading] = useState(false)
-  const {login} = useAuth()
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+
   const navigate = useNavigate();
 
   const onButtonClick = async () => {
     // Set initial error values to empty
-    setFormError('')
+    setFormError("");
     setEmailError("");
     setPasswordError("");
 
@@ -41,12 +41,12 @@ const Login = () => {
       setPasswordError("The password must be 8 characters or longer");
       return;
     }
-    setIsLoading(true)
-    const response = await login(email,password)
+    setIsLoading(true);
+    const response = await login(email, password);
     if (response) {
-      navigate('/')
-    }else{
-      setFormError('Email or Password is Wrong')
+      navigate("/");
+    } else {
+      setFormError("Email or Password is Wrong");
     }
     setIsLoading(false);
   };
@@ -70,6 +70,8 @@ const Login = () => {
       <br />
       <div className={"inputContainer"}>
         <input
+          name="password"
+          type="password"
           value={password}
           placeholder="Enter your password here"
           onChange={(ev) => setPassword(ev.target.value)}
@@ -80,7 +82,7 @@ const Login = () => {
       <br />
       <div className={"inputContainer"}>
         <LoadingButton
-          className="btn"
+          className="btn h-[60px] justify-center"
           isLoading={isLoading}
           onClick={onButtonClick}
           title="Log in"

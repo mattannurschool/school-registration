@@ -5,7 +5,7 @@ interface LoadingButtonProps {
   isLoading: boolean;
   onClick: () => void;
   title: React.ReactNode;
-  className:string
+  className: string;
 }
 
 const LoadingButton: React.FC<LoadingButtonProps> = ({
@@ -15,13 +15,21 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
   className,
 }) => {
   return (
-    <button style={{width:150}} type="button" onClick={onClick} disabled={isLoading} className={className}>
+    <button
+      style={{ width: 150 }}
+      type="button"
+      onClick={onClick}
+      disabled={isLoading}
+      className={className}
+    >
       {isLoading ? (
-        <span className="flex space-x-1">
-          <span className="dot animate-ping"></span>
-          <span className="dot animate-ping"></span>
-          <span className="dot animate-ping"></span>
-        </span>
+        <div className="">
+          <span className="flex flex-1 justify-center">
+            <span className="dot animate-ping"></span>
+            <span className="dot animate-ping"></span>
+            <span className="dot animate-ping"></span>
+          </span>
+        </div>
       ) : (
         title
       )}

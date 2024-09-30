@@ -13,6 +13,7 @@ const CreateEditStudentPage = () => {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [fieldUpdated,setFIeldUpdated] = useState(false)
+  const [buttonLoading,setButtonLoading] = useState(false)
 
   useEffect(() => {
     async function getUser() {
@@ -157,6 +158,7 @@ const CreateEditStudentPage = () => {
     if(!fieldUpdated){
       navigate("/?page=1&search=");
     }
+    setButtonLoading(true)
     try {
       if (!id) {
         await createStudent(addTimeToDate());
@@ -184,6 +186,7 @@ const CreateEditStudentPage = () => {
       otherInfo: "",
       dateOfBirthInWords: "", // Reset the new field
     });
+    setButtonLoading(true);
       navigate("/?page=1");
     } catch (error) {
       alert("Error adding student");
@@ -513,9 +516,21 @@ const CreateEditStudentPage = () => {
               {/* Add the rest of the fields following the same pattern */}
               <button
                 type="submit"
-                className="btn text-white !py-1 px-4 rounded-md shadow "
+                className="btn text-white !py-1 px-4 rounded-md shadow h-11"
               >
-                {id ? "Update" : "Add"} Student
+                {buttonLoading ? (
+                  <div className="">
+                    <span className="flex flex-1 justify-center">
+                      <span className="dot animate-ping"></span>
+                      <span className="dot animate-ping"></span>
+                      <span className="dot animate-ping"></span>
+                    </span>
+                  </div>
+                ) : id ? (
+                  "Update Student"
+                ) : (
+                  "Add Student"
+                )}
               </button>
             </form>
           )}
