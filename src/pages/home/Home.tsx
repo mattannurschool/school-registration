@@ -28,20 +28,20 @@ const HomePage = () => {
     setCurrentPage(pageNumber);
     setSearchQuery(search);
   }, [searchParams, setSearchParams]);
-    useEffect(() => {
-      async function getStudents() {
-        setIsLoading(true);
-        if (searchParams != null && currentPage != null) {
-          const response = await getStudentsList(currentPage, searchTerm ?? ""); // Pass searchTerm to API
-          if (response) {
-            setStudents(response.documents);
-            setHasNext(response.hasNext);
-          }
-          setIsLoading(false);
+  useEffect(() => {
+    async function getStudents() {
+      setIsLoading(true);
+      if (searchParams != null && currentPage != null) {
+        const response = await getStudentsList(currentPage, searchTerm ?? ""); // Pass searchTerm to API
+        if (response) {
+          setStudents(response.documents);
+          setHasNext(response.hasNext);
         }
+        setIsLoading(false);
       }
-      getStudents();
-    }, [currentPage, searchTerm]);
+    }
+    getStudents();
+  }, [currentPage, searchTerm]);
 
   // Handle delete operation
   const handleDelete = async () => {
@@ -113,11 +113,11 @@ const HomePage = () => {
             students.map((item) => (
               <div
                 key={item.$id}
-                className="flex flex-col sm:flex-row justify-between cursor-pointer p-4 hover:scale-[1.03] transition-all items-center mb-4 border border-gray-300 rounded-md bg-white"
+                className="flex flex-col sm:flex-row justify-between cursor-pointer p-4 max-sm:p-3  hover:scale-[1.03] transition-all  mb-4 border border-gray-300 rounded-md bg-white"
               >
                 <div
                   onClick={() => navigate(`students/${item.$id}`)}
-                  className="flex flex-1 flex-row gap-3 items-center"
+                  className="flex flex-1 flex-row gap-3 items-center max-sm:ml-2"
                 >
                   <img
                     className="w-[80px] h-[80px] rounded-full max-sm:w-[40px] max-sm:h-[40px]"
@@ -135,14 +135,14 @@ const HomePage = () => {
                 </div>
                 <div className="flex  flex-row gap-2 mt-2 sm:mt-0">
                   <button
-                    className="btn !px-3 !py-1 !text-lg"
+                    className="btn !px-3 !py-1 !text-lg !flex-1"
                     onClick={() => navigate(`/create-edit-student/${item.$id}`)}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => openDeleteModal(item.$id)}
-                    className="btn !px-3 !py-1 !text-lg !bg-red-600"
+                    className="btn !px-3 !py-1 !text-lg !bg-red-600 !flex-1"
                   >
                     Delete
                   </button>
