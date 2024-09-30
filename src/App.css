@@ -1,0 +1,39 @@
+/* src/App.css or src/components/LoadingButton.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.dot {
+  display: inline-block;
+  font-size: 24px; /* You can adjust the size */
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  margin: 0 0.45rem;
+}
+
+.dot.animate-ping {
+  animation: ping 1s infinite;
+}
+
+@keyframes ping {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.background-fixed {
+  /* background: url("../public/assets/logo.jpg") center top no-repeat fixed; */
+  background-size: cover; /* Optional: makes sure the background image covers the entire element */
+  padding-bottom: 40;
+}
+.nav-background {
+  background: url("./assets/logo.jpg") 0 -250px no-repeat fixed;
+  background-size: cover; /* Optional: makes sure the background image covers the entire element */
+  padding-bottom: 40;
+  
+}
