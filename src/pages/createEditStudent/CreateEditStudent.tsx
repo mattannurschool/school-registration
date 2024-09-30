@@ -457,11 +457,11 @@ const CreateEditStudentPage = () => {
                 </label>
                 <input
                   type="date"
-                  id="dateOfBirth"
-                  name="dateOfBirth"
+                  id="vacatingDate"
+                  name="vacatingDate"
                   onChange={handleDateChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  value={formData.dateOfBirth!}
+                  value={formData.vacatingDate!}
                 />
               </div>
               <div>
