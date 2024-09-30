@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
         onClick={() => navigate("/?page=1&search")}
       >
         <img src={image} alt="Logo" className="h-10 w-10 mr-2 rounded-full" />
-        <span className="text-xl font-semibold">GHSS Mattannur</span>
+        <span className="text-xl font-semibold">MTS GUPS MATTANNUR</span>
       </div>
     </nav>
   );

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./loginPage.css";
-import { login } from "../../lib/appWrite";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingButton from "../../components/LoadingButton";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,17 +11,14 @@ const Login = () => {
   const [formError, setFormError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-
   const navigate = useNavigate();
 
   const onButtonClick = async () => {
-    // Set initial error values to empty
     setFormError("");
     setEmailError("");
     setPasswordError("");
 
-    // Check if the user has entered both fields correctly
-    if ("" === email) {
+    if (email === "") {
       setEmailError("Please enter your email");
       return;
     }
@@ -32,15 +28,16 @@ const Login = () => {
       return;
     }
 
-    if ("" === password) {
+    if (password === "") {
       setPasswordError("Please enter a password");
       return;
     }
 
-    if (password.length < 7) {
+    if (password.length < 8) {
       setPasswordError("The password must be 8 characters or longer");
       return;
     }
+
     setIsLoading(true);
     const response = await login(email, password);
     if (response) {
@@ -52,41 +49,48 @@ const Login = () => {
   };
 
   return (
-    <div className={"loginContainer"}>
-      <div className={"titleContainer"}>
-        <div>Login</div>
-      </div>
-      <div className="form-error errorLabel">{formError && formError}</div>
-      <br />
-      <div className={"inputContainer"}>
-        <input
-          value={email}
-          placeholder="Enter your email here"
-          onChange={(ev) => setEmail(ev.target.value)}
-          className={"inputBox"}
-        />
-        <label className="errorLabel">{emailError}</label>
-      </div>
-      <br />
-      <div className={"inputContainer"}>
-        <input
-          name="password"
-          type="password"
-          value={password}
-          placeholder="Enter your password here"
-          onChange={(ev) => setPassword(ev.target.value)}
-          className={"inputBox"}
-        />
-        <label className="errorLabel">{passwordError}</label>
-      </div>
-      <br />
-      <div className={"inputContainer"}>
-        <LoadingButton
-          className="btn h-[60px] justify-center"
-          isLoading={isLoading}
-          onClick={onButtonClick}
-          title="Log in"
-        />
+    <div className="flex flex-col items-center justify-center h-screen p-4 bg-gray-100">
+      <div className="w-full max-w-md p-6 bg-white rounded-md shadow-md">
+        <h2 className="text-2xl font-bold text-center">Login</h2>
+
+        {formError && (
+          <div className="text-red-600 text-center mt-2">{formError}</div>
+        )}
+
+        <div className="mt-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email here"
+            className="w-full px-4 py-2 mt-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {emailError && (
+            <p className="text-red-600 text-sm mt-1">{emailError}</p>
+          )}
+        </div>
+
+        <div className="mt-4">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password here"
+            className="w-full px-4 py-2 mt-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {passwordError && (
+            <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <LoadingButton
+            className="!w-full h-12 bg-blue-600 text-white font-semibold rounded-md flex items-center justify-center"
+            isLoading={isLoading}
+            onClick={onButtonClick}
+            title="Log in"
+          />
+        </div>
       </div>
     </div>
   );

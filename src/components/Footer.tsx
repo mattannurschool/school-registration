@@ -6,13 +6,18 @@ const Footer: React.FC = () => {
     <footer className="bg-gray-800 p-4">
       <div className="text-center text-white">
         <p>
-          &copy; {new Date().getFullYear()} GHSS Mattannur. All rights reserved.
+          &copy; {new Date().getFullYear()} MTS GUPS MATTANNUR. All rights
+          reserved.
         </p>
-        <p>
+        <p className="mt-3">
+          Madhusoodanan Thangal Smaraka Govt U P School, MATTANNUR. PO MATTANNUR
+          - 670592, MATTANNUR Sub District.
+        </p>
+        <p className="mt-3">
           Powered by{" "}
           <strong>
             <a
-              href="https://instagram.com/your-company-instagram"
+              href="https://www.instagram.com/codecave.in/"
               className="underline-none"
               target="_blank"
               rel="noopener noreferrer"
@@ -23,7 +28,7 @@ const Footer: React.FC = () => {
           | Developed by{" "}
           <strong>
             <a
-              href="https://instagram.com/your-instagram"
+              href="https://www.linkedin.com/in/muhammed-irshad-81985b287/"
               className="underline-none"
               target="_blank"
               rel="noopener noreferrer"
