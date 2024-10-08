@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         </p>
         <p className="mt-3 max-w-[780px] mx-auto max-sm:text-sm">
           Madhusoodanan Thangal Smaraka Govt U P School, MATTANNUR. PO MATTANNUR
-          670592, MATTANNUR Sub District.
+          670702, MATTANNUR Sub District.
         </p>
         <p className="mt-3">
           Powered by{" "}
