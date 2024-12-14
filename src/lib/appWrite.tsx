@@ -1,9 +1,7 @@
 // src/services/appwriteService.ts
 import { Client, Databases, Account, Avatars } from "appwrite";
 import { ID, Query } from "appwrite";
-import { StudentType } from "../types/types";
 
-console.log(process.env.REACT_APP_APPWRITE_ENDPOINT);
 const client = new Client();
 client
   .setEndpoint(process.env.REACT_APP_APPWRITE_ENDPOINT || "") // Set your Appwrite endpoint
@@ -53,6 +51,7 @@ export const createStudent = async (data: any) => {
       ...data,
       avatar_url: avatarUrl,
     };
+    console.log(newData);
     return await database.createDocument(
       STUDENTS_DATABASE_ID,
       STUDENTS_COLLECTION_ID,
@@ -86,7 +85,7 @@ export const getStudentsList = async (page = 1, query: string) => {
       STUDENTS_COLLECTION_ID,
       [
         Query.contains("admissionNumber", query),
-        Query.orderDesc("admissionDate"),
+        Query.orderDesc("dateOfAdmission"),
         Query.limit(noOfStudents),
       ]
     );
@@ -149,7 +148,7 @@ export const searchStudents = async (query: string) => {
       [
         
         
-        Query.orderDesc("admissionDate"),
+        Query.orderDesc("dateOfAdmission"),
       ]
     );
   } catch (error) {

@@ -5,15 +5,15 @@ import {
   updateStudent,
 } from "../../lib/appWrite";
 import { useNavigate, useParams } from "react-router-dom";
-import { StudentFormData, StudentType } from "../../types/types";
+import { StudentFormData } from "../../types/types";
 import { SpinningCircles } from "react-loading-icons";
 
-type datesKeyType = "admissionDate" | "dateOfBirth" | "vacatingDate";
+type datesKeyType = "dateOfAdmission" | "dateOfBirth";
 const CreateEditStudentPage = () => {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [fieldUpdated,setFIeldUpdated] = useState(false)
-  const [buttonLoading,setButtonLoading] = useState(false)
+  const [fieldUpdated, setFIeldUpdated] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   useEffect(() => {
     async function getUser() {
@@ -22,72 +22,70 @@ const CreateEditStudentPage = () => {
         const response = await getStudentDetails(id);
 
         if (response) {
-          const formattedAdmissionDate = response.admissionDate
-            ? new Date(response.admissionDate).toISOString().split("T")[0]
+          const formattedAdmissionDate = response.dateOfAdmission
+            ? new Date(response.dateOfAdmission).toISOString().split("T")[0]
             : null;
           const formattedDateOfBirth = response.dateOfBirth
             ? new Date(response.dateOfBirth).toISOString().split("T")[0]
             : null;
-          const formattedVacatingDate = response.dateOfBirth
-            ? new Date(response.vacatingDate).toISOString().split("T")[0]
-            : null;
           setFormData({
             studentName: response.studentName || "",
-            admissionRegister: response.admissionRegister || "",
             admissionNumber: response.admissionNumber || "",
-            guardianName: response.guardianName || "",
-            guardianJob: response.guardianJob || "",
-            fatherName: response.fatherName || "",
-            motherName: response.motherName || "",
-            admissionDate: formattedAdmissionDate || null,
             dateOfBirth: formattedDateOfBirth || null,
-            caste: response.caste || "",
-            casteCategory: response.casteCategory || "",
             religion: response.religion || "",
-            admissionStartClass: response.admissionStartClass || "",
-            vacatingClass: response.vacatingClass || "",
-            vacatingDate: formattedVacatingDate || null,
-            tcNumber: response.tcNumber || "",
-            reason: response.reason || "",
-            otherInfo: response.otherInfo || "",
-            dateOfBirthInWords: response.dateOfBirthInWords|| ""// Add this line
+            schoolPreviouslyStudied: response.schoolPreviouslyStudied || "",
+            aadharNumber: response.aadharNumber || null,
+            parentGuardianRel: response.parentGuardianRel || null,
+            parentOccResidence: response.parentOccResidence || null,
+            dateOfAdmission: formattedAdmissionDate || null,
+            pupilCasteInfo: response.pupilCasteInfo || null,
+            standardOnAdmission: response.standardOnAdmission || null,
+            standardOnLeaving: response.standardOnLeaving || null,
+            dateOfLeaving: response.dateOfLeaving || null,
+            tcNumberDate: response.tcNumberDate || null,
+            tcNumberDateLeaving: response.tcNumberDateLeaving || null,
+            dateOfVaccination: response.dateOfVaccination || null,
+            remarks: response.remarks || null,
+            reasonForLeaving: response.reasonForLeaving || null,
           });
           setIsLoading(false);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error fetching student details:", error);
+      }
     }
+
     if (id) {
       getUser();
     } else {
       setIsLoading(false);
     }
-  }, []);
+  }, [id]);
   const [formData, setFormData] = useState<StudentFormData>({
     studentName: "",
-    admissionRegister: "",
     admissionNumber: "",
-    guardianName: "",
-    guardianJob: "",
-    fatherName: "",
-    motherName: "",
-    admissionDate: null,
     dateOfBirth: null,
-    caste: "",
-    casteCategory: "",
     religion: "",
-    admissionStartClass: "",
-    vacatingClass: "",
-    vacatingDate: null,
-    tcNumber: "",
-    reason: "",
-    otherInfo: "",
-    dateOfBirthInWords:""
+    schoolPreviouslyStudied: "",
+    aadharNumber: "",
+    dateOfAdmission: "",
+    dateOfLeaving: "",
+    dateOfVaccination: "",
+    parentGuardianRel: "",
+    tcNumberDateLeaving: "",
+    tcNumberDate: "",
+    parentOccResidence: "",
+    pupilCasteInfo: "",
+    remarks: "",
+    standardOnAdmission: "",
+    standardOnLeaving: "",
+    reasonForLeaving: "",
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFIeldUpdated(true)
+    setFIeldUpdated(true);
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -101,33 +99,10 @@ const CreateEditStudentPage = () => {
       ...prevData,
       [name]: value, // Convert to ISO string for Appwrite's datetime format
     }));
-    // if (value) {
-    //   const selectedDate = new Date(value);
-    //   const currentDate = new Date();
-    //   // Combine the selected date with the current time
-    //   const finalDate = new Date(
-    //     selectedDate.getFullYear(),
-    //     selectedDate.getMonth(),
-    //     selectedDate.getDate(),
-    //     currentDate.getHours(),
-    //     currentDate.getMinutes(),
-    //     currentDate.getSeconds()
-    //   );
-
-    //   setFormData((prevData) => ({
-    //     ...prevData,
-    //     [name]: finalDate.toISOString(), // Convert to ISO string for Appwrite's datetime format
-    //   }));
-    // } else {
-    //   setFormData((prevData) => ({
-    //     ...prevData,
-    //     [name]: null, // Set to null when no date is selected
-    //   }));
-    // }
   };
 
   const addTimeToDate = () => {
-    const keys = ["admissionDate", "dateOfBirth", "vacatingDate"];
+    const keys = ["dateOfAdmission", "dateOfBirth"];
 
     let updatedDates: Partial<StudentFormData> = {};
     keys.forEach((name, idx) => {
@@ -153,40 +128,38 @@ const CreateEditStudentPage = () => {
   };
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-
     e.preventDefault();
-    if(!fieldUpdated){
+    if (!fieldUpdated) {
       navigate("/?page=1&search=");
     }
-    setButtonLoading(true)
+    setButtonLoading(true);
     try {
       if (!id) {
         await createStudent(addTimeToDate());
       } else {
         await updateStudent(id, addTimeToDate());
       }
-    setFormData({
-      studentName: "",
-      admissionRegister: "",
-      admissionNumber: "",
-      guardianName: "",
-      guardianJob: "",
-      fatherName: "",
-      motherName: "",
-      admissionDate: null,
-      dateOfBirth: null,
-      caste: "",
-      casteCategory: "",
-      religion: "",
-      admissionStartClass: "",
-      vacatingClass: "",
-      vacatingDate: null,
-      tcNumber: "",
-      reason: "",
-      otherInfo: "",
-      dateOfBirthInWords: "", // Reset the new field
-    });
-    setButtonLoading(true);
+      setFormData({
+        studentName: "",
+        admissionNumber: "",
+        dateOfBirth: null,
+        religion: "",
+        schoolPreviouslyStudied: "",
+        aadharNumber: "",
+        dateOfAdmission: "",
+        dateOfLeaving: "",
+        dateOfVaccination: "",
+        parentGuardianRel: "",
+        tcNumberDateLeaving: "",
+        tcNumberDate: "",
+        parentOccResidence: "",
+        pupilCasteInfo: "",
+        remarks: "",
+        standardOnAdmission: "",
+        standardOnLeaving: "",
+        reasonForLeaving: "",
+      });
+      setButtonLoading(true);
       navigate("/?page=1");
     } catch (error) {
       alert("Error adding student");
@@ -209,6 +182,23 @@ const CreateEditStudentPage = () => {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
               <div>
                 <label
+                  htmlFor="admissionNumber"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Admission Number *
+                </label>
+                <input
+                  type="text"
+                  id="admissionNumber"
+                  name="admissionNumber"
+                  value={formData.admissionNumber}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
                   htmlFor="studentName"
                   className="block text-sm font-medium text-gray-700"
                 >
@@ -224,118 +214,92 @@ const CreateEditStudentPage = () => {
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="admissionRegister"
+                  htmlFor="aadharNumber"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Admission Register
+                  Aadhar Number
                 </label>
                 <input
                   type="text"
-                  id="admissionRegister"
-                  name="admissionRegister"
-                  value={formData.admissionRegister}
+                  id="aadharNumber"
+                  name="aadharNumber"
+                  value={formData.aadharNumber || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="admissionNumber"
+                  htmlFor="parentGuardianRel"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Admission Number *
+                  Name of Parent/Guardian & Relationship
                 </label>
                 <input
                   type="text"
-                  id="admissionNumber"
-                  name="admissionNumber"
-                  value={formData.admissionNumber}
+                  id="parentGuardianRel"
+                  name="parentGuardianRel"
+                  value={formData.parentGuardianRel || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="guardianName"
+                  htmlFor="parentOccResidence"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Guardian name
+                  Occupation of Parent/Guardian & Residence
                 </label>
                 <input
                   type="text"
-                  id="guardianName"
-                  name="guardianName"
-                  value={formData.guardianName}
+                  id="parentOccResidence"
+                  name="parentOccResidence"
+                  value={formData.parentOccResidence || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="guardianJob"
+                  htmlFor="schoolPreviouslyStudied"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Guardian's Job
+                  School Previously Studied
                 </label>
                 <input
                   type="text"
-                  id="guardianJob"
-                  name="guardianJob"
-                  value={formData.guardianJob}
+                  id="schoolPreviouslyStudied"
+                  name="schoolPreviouslyStudied"
+                  value={formData.schoolPreviouslyStudied || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="fatherName"
+                  htmlFor="dateOfAdmission"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  id="fatherName"
-                  name="fatherName"
-                  value={formData.fatherName}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="motherName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  id="motherName"
-                  name="motherName"
-                  value={formData.motherName}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="admissionDate"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Admission Date
+                  Date of Admission
                 </label>
                 <input
                   type="date"
-                  id="admissionDate"
-                  name="admissionDate"
+                  id="dateOfAdmission"
+                  name="dateOfAdmission"
                   onChange={handleDateChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  value={formData.admissionDate!}
+                  value={formData.dateOfAdmission || ""}
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="dateOfBirth"
@@ -349,57 +313,10 @@ const CreateEditStudentPage = () => {
                   name="dateOfBirth"
                   onChange={handleDateChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  value={formData.dateOfBirth!}
+                  value={formData.dateOfBirth || ""}
                 />
               </div>
-              <div>
-                <label
-                  htmlFor="dateOfBirthInWords"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Date of Birth in Words
-                </label>
-                <input
-                  type="text"
-                  id="dateOfBirthInWords"
-                  name="dateOfBirthInWords"
-                  value={formData.dateOfBirthInWords!}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="caste"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Caste
-                </label>
-                <input
-                  type="text"
-                  id="caste"
-                  name="caste"
-                  value={formData.caste}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="casteCategory"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Caste Category
-                </label>
-                <input
-                  type="text"
-                  id="casteCategory"
-                  name="casteCategory"
-                  value={formData.casteCategory || ""}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+
               <div>
                 <label
                   htmlFor="religion"
@@ -411,109 +328,160 @@ const CreateEditStudentPage = () => {
                   type="text"
                   id="religion"
                   name="religion"
-                  value={formData.religion}
+                  value={formData.religion || ""}
                   onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="admissionStartClass"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Admission Start Class
-                </label>
-                <input
-                  type="text"
-                  id="admissionStartClass"
-                  name="admissionStartClass"
-                  value={formData.admissionStartClass || ""}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="vacatingClass"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Vacated class
-                </label>
-                <input
-                  type="text"
-                  id="vacatingClass"
-                  name="vacatingClass"
-                  value={formData.vacatingClass || ""}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="dateOfBirth"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Vacated Date
-                </label>
-                <input
-                  type="date"
-                  id="vacatingDate"
-                  name="vacatingDate"
-                  onChange={handleDateChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  value={formData.vacatingDate!}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="tcNumber"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  TC number
-                </label>
-                <input
-                  type="text"
-                  id="tcNumber"
-                  name="tcNumber"
-                  value={formData.tcNumber || ""}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="reason"
-                  className="block text-sm font-medium text-gray-700 mt-4"
-                >
-                  Reason
-                </label>
-                <textarea
-                  id="reason"
-                  name="reason"
-                  value={formData.reason || ""}
-                  onChange={handleChange}
-                  rows={4} // Set the number of rows for the textarea
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="otherInfo"
-                  className="block text-sm font-medium text-gray-700 mt-4"
-                >
-                  Other Information
-                </label>
-                <textarea
-                  id="otherInfo"
-                  name="otherInfo"
-                  value={formData.otherInfo || ""}
-                  onChange={handleChange}
-                  rows={4} // Set the number of rows for the textarea
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
 
-              {/* Add the rest of the fields following the same pattern */}
+              <div>
+                <label
+                  htmlFor="pupilCasteInfo"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Does the pupil belong to Scheduled Castes or Schedules Tribes
+                  or other backward communities or is he a convert from
+                  schedules Castes or Schedules Tribes
+                </label>
+                <input
+                  type="text"
+                  id="pupilCasteInfo"
+                  name="pupilCasteInfo"
+                  value={formData.pupilCasteInfo || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="standardOnAdmission"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Standard on Admission
+                </label>
+                <input
+                  type="text"
+                  id="standardOnAdmission"
+                  name="standardOnAdmission"
+                  value={formData.standardOnAdmission || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Standard on Leaving
+                </label>
+                <input
+                  type="text"
+                  id="standardOnLeaving"
+                  name="standardOnLeaving"
+                  value={formData.standardOnLeaving || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of Leaving
+                </label>
+                <input
+                  type="text"
+                  id="dateOfLeaving"
+                  name="dateOfLeaving"
+                  value={formData.dateOfLeaving || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  No. & date of TC produced on admission
+                </label>
+                <input
+                  type="text"
+                  id="tcNumberDate"
+                  name="tcNumberDate"
+                  value={formData.tcNumberDate || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  No. & date of TC granted on leaving
+                </label>
+                <input
+                  type="text"
+                  id="tcNumberDateLeaving"
+                  name="tcNumberDateLeaving"
+                  value={formData.tcNumberDateLeaving || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Reason for leaving
+                </label>
+                <input
+                  type="text"
+                  id="reasonForLeaving"
+                  name="reasonForLeaving"
+                  value={formData.reasonForLeaving || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of vaccination
+                </label>
+                <input
+                  type="text"
+                  id="dateOfVaccination"
+                  name="dateOfVaccination"
+                  value={formData.dateOfVaccination || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="standardOnLeaving"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Remarks
+                </label>
+                <input
+                  type="text"
+                  id="remarks"
+                  name="remarks"
+                  value={formData.remarks || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
               <button
                 type="submit"
                 className="btn text-white !py-1 px-4 rounded-md shadow h-11"
