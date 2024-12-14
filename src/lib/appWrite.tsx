@@ -43,6 +43,8 @@ export const logout = async () => {
   }
 };
 
+
+
 export const createStudent = async (data: any) => {
   try {
     const id = ID.unique();
