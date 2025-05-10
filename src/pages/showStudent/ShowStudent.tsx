@@ -38,6 +38,7 @@ const ShowStudentsPage = () => {
             dateOfVaccination: response.dateOfVaccination || null,
             remarks: response.remarks || "N/A",
             avatar_url: response.avatar_url || "N/A",
+            DOBInWords: response.DOBInWords || "N/A",
           });
           setIsLoading(false);
         }
@@ -75,9 +76,13 @@ const ShowStudentsPage = () => {
       } catch (error) {
         console.error("Error deleting student", error);
       }
-    }
+    } 
   };
-
+  const parseDate = (dateStr:string) => {
+    const [day, month, year] = dateStr.split('/');
+    return new Date(`${year}-${month}-${day}`);
+  };
+  
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-extrabold text-center mb-6">

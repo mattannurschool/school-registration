@@ -43,8 +43,6 @@ export const logout = async () => {
   }
 };
 
-
-
 export const createStudent = async (data: any) => {
   try {
     const id = ID.unique();
@@ -67,49 +65,35 @@ export const createStudent = async (data: any) => {
 
 export const getStudentsList = async (page = 1, query: string) => {
   try {
-    const noOfStudents = 30; // Number of students per page
+    const noOfStudents = 30;
     const offset = (page - 1) * noOfStudents;
 
-    // Query by studentName
-    const studentNameResponse = await database.listDocuments(
+    const filters = Query.or([
+      Query.contains("studentName", query),
+      Query.contains("admissionNumber", query),
+    ]);
+
+    const response = await database.listDocuments(
       STUDENTS_DATABASE_ID,
       STUDENTS_COLLECTION_ID,
       [
-        Query.contains("studentName", query),
-        Query.orderDesc("$updatedAt"),
-        Query.limit(noOfStudents),
+        filters,
+        Query.orderDesc("$updatedAt"), // You can choose the field to sort by
+        Query.limit(100), // Fetch more to allow room for pagination
       ]
     );
-
-    // Query by admissionNumber
-    const admissionNumberResponse = await database.listDocuments(
-      STUDENTS_DATABASE_ID,
-      STUDENTS_COLLECTION_ID,
-      [
-        Query.contains("admissionNumber", query),
-        Query.orderDesc("dateOfAdmission"),
-        Query.limit(noOfStudents),
-      ]
+    
+    const uniqueDocs = Array.from(
+      new Map(response.documents.map((doc) => [doc.$id, doc])).values()
     );
 
-    // Combine both results and filter duplicates (by $id)
-    const combinedResults = [
-      ...studentNameResponse.documents,
-      ...admissionNumberResponse.documents,
-    ];
+    const paginated = uniqueDocs.slice(offset, offset + noOfStudents);
+    const hasNext = uniqueDocs.length > offset + noOfStudents;
 
-    // Use a Map to remove duplicates based on the document $id
-    const uniqueResults = Array.from(
-      new Map(combinedResults.map((item) => [item.$id, item])).values()
-    );
-
-    // Paginate the unique results (after filtering duplicates)
-    const paginatedResults = uniqueResults.slice(offset, offset + noOfStudents);
-    // Determine if there's a next page
-    const hasNext = uniqueResults.length > offset + noOfStudents;
     return {
-      documents: paginatedResults,
+      documents: paginated,
       hasNext,
+      total: response.total
     };
   } catch (error) {
     console.error("Error fetching students list:", error);
@@ -147,11 +131,7 @@ export const searchStudents = async (query: string) => {
     return await database.listDocuments(
       STUDENTS_DATABASE_ID,
       STUDENTS_COLLECTION_ID,
-      [
-        
-        
-        Query.orderDesc("dateOfAdmission"),
-      ]
+      [Query.orderDesc("dateOfAdmission")]
     );
   } catch (error) {
     console.error("Error searching students", error);
@@ -160,12 +140,11 @@ export const searchStudents = async (query: string) => {
 
 export const getStudentDetails = async (studentId: string) => {
   try {
-    return (await database.getDocument(
+    return await database.getDocument(
       STUDENTS_DATABASE_ID,
       STUDENTS_COLLECTION_ID,
-      studentId,
-
-    ))
+      studentId
+    );
   } catch (error) {
     console.error("Error updating student", error);
   }

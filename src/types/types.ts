@@ -18,5 +18,6 @@ export interface StudentType {
   dateOfVaccination: string | null;
   remarks: string | null;
   avatar_url: string; // Required field
+  DOBInWords:string;
 }
 export type StudentFormData = Omit<StudentType, "avatar_url">;

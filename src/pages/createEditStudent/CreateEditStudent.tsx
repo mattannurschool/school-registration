@@ -9,62 +9,18 @@ import { StudentFormData } from "../../types/types";
 import { SpinningCircles } from "react-loading-icons";
 
 type datesKeyType = "dateOfAdmission" | "dateOfBirth";
+
 const CreateEditStudentPage = () => {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [fieldUpdated, setFIeldUpdated] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
 
-  useEffect(() => {
-    async function getUser() {
-      if (!id) return;
-      try {
-        const response = await getStudentDetails(id);
-
-        if (response) {
-          const formattedAdmissionDate = response.dateOfAdmission
-            ? new Date(response.dateOfAdmission).toISOString().split("T")[0]
-            : null;
-          const formattedDateOfBirth = response.dateOfBirth
-            ? new Date(response.dateOfBirth).toISOString().split("T")[0]
-            : null;
-          setFormData({
-            studentName: response.studentName || "",
-            admissionNumber: response.admissionNumber || "",
-            dateOfBirth: formattedDateOfBirth || null,
-            religion: response.religion || "",
-            schoolPreviouslyStudied: response.schoolPreviouslyStudied || "",
-            aadharNumber: response.aadharNumber || null,
-            parentGuardianRel: response.parentGuardianRel || null,
-            parentOccResidence: response.parentOccResidence || null,
-            dateOfAdmission: formattedAdmissionDate || null,
-            pupilCasteInfo: response.pupilCasteInfo || null,
-            standardOnAdmission: response.standardOnAdmission || null,
-            standardOnLeaving: response.standardOnLeaving || null,
-            dateOfLeaving: response.dateOfLeaving || null,
-            tcNumberDate: response.tcNumberDate || null,
-            tcNumberDateLeaving: response.tcNumberDateLeaving || null,
-            dateOfVaccination: response.dateOfVaccination || null,
-            remarks: response.remarks || null,
-            reasonForLeaving: response.reasonForLeaving || null,
-          });
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching student details:", error);
-      }
-    }
-
-    if (id) {
-      getUser();
-    } else {
-      setIsLoading(false);
-    }
-  }, [id]);
   const [formData, setFormData] = useState<StudentFormData>({
     studentName: "",
     admissionNumber: "",
     dateOfBirth: null,
+    DOBInWords: "",
     religion: "",
     schoolPreviouslyStudied: "",
     aadharNumber: "",
@@ -82,6 +38,56 @@ const CreateEditStudentPage = () => {
     reasonForLeaving: "",
   });
 
+  useEffect(() => {
+    async function getUser() {
+      if (!id) return;
+      try {
+        const response = await getStudentDetails(id);
+
+        if (response) {
+          const formattedAdmissionDate = response.dateOfAdmission
+            ? new Date(response.dateOfAdmission).toISOString().split("T")[0]
+            : null;
+          const formattedDateOfBirth = response.dateOfBirth
+            ? new Date(response.dateOfBirth).toISOString().split("T")[0]
+            : null;
+
+          setFormData({
+            studentName: response.studentName || "",
+            admissionNumber: response.admissionNumber || "",
+            dateOfBirth: formattedDateOfBirth || null,
+            DOBInWords: response.DOBInWords || "",
+            religion: response.religion || "",
+            schoolPreviouslyStudied: response.schoolPreviouslyStudied || "",
+            aadharNumber: response.aadharNumber || null,
+            parentGuardianRel: response.parentGuardianRel || null,
+            parentOccResidence: response.parentOccResidence || null,
+            dateOfAdmission: formattedAdmissionDate || null,
+            pupilCasteInfo: response.pupilCasteInfo || null,
+            standardOnAdmission: response.standardOnAdmission || null,
+            standardOnLeaving: response.standardOnLeaving || null,
+            dateOfLeaving: response.dateOfLeaving || null,
+            tcNumberDate: response.tcNumberDate || null,
+            tcNumberDateLeaving: response.tcNumberDateLeaving || null,
+            dateOfVaccination: response.dateOfVaccination || null,
+            remarks: response.remarks || null,
+            reasonForLeaving: response.reasonForLeaving || null,
+          });
+
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching student details:", error);
+      }
+    }
+
+    if (id) {
+      getUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, [id]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -93,24 +99,43 @@ const CreateEditStudentPage = () => {
     }));
   };
 
+  const formatDateToWords = (date: string): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    return new Date(date).toLocaleDateString("en-US", options);
+  };
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value, // Convert to ISO string for Appwrite's datetime format
-    }));
+    setFIeldUpdated(true);
+
+    // If dateOfBirth is changed, also update DOBInWords
+    if (name === "dateOfBirth") {
+      setFormData((prevData) => ({
+        ...prevData,
+        dateOfBirth: value,
+        DOBInWords: value ? formatDateToWords(value) : "",
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const addTimeToDate = () => {
     const keys = ["dateOfAdmission", "dateOfBirth"];
 
     let updatedDates: Partial<StudentFormData> = {};
-    keys.forEach((name, idx) => {
+    keys.forEach((name) => {
       const value = formData[name as keyof StudentFormData];
       if (value) {
         const selectedDate = new Date(value);
         const currentDate = new Date();
-        // Combine the selected date with the current time
         const finalDate = new Date(
           selectedDate.getFullYear(),
           selectedDate.getMonth(),
@@ -126,6 +151,7 @@ const CreateEditStudentPage = () => {
     });
     return { ...formData, ...updatedDates };
   };
+
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -143,6 +169,7 @@ const CreateEditStudentPage = () => {
         studentName: "",
         admissionNumber: "",
         dateOfBirth: null,
+        DOBInWords: "",
         religion: "",
         schoolPreviouslyStudied: "",
         aadharNumber: "",
@@ -159,7 +186,7 @@ const CreateEditStudentPage = () => {
         standardOnLeaving: "",
         reasonForLeaving: "",
       });
-      setButtonLoading(true);
+      setButtonLoading(false);
       navigate("/?page=1");
     } catch (error) {
       alert("Error adding student");
@@ -316,6 +343,22 @@ const CreateEditStudentPage = () => {
                   value={formData.dateOfBirth || ""}
                 />
               </div>
+              <div>
+                <label
+                  htmlFor="DOBInWords"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of Birth (In Words)
+                </label>
+                <input
+                  type="text"
+                  id="DOBInWords"
+                  name="DOBInWords"
+                  value={formData.DOBInWords || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
 
               <div>
                 <label
@@ -388,13 +431,13 @@ const CreateEditStudentPage = () => {
               </div>
               <div>
                 <label
-                  htmlFor="standardOnLeaving"
+                  htmlFor="dateOfLeaving"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Date of Leaving
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   id="dateOfLeaving"
                   name="dateOfLeaving"
                   value={formData.dateOfLeaving || ""}
@@ -458,7 +501,7 @@ const CreateEditStudentPage = () => {
                   Date of vaccination
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   id="dateOfVaccination"
                   name="dateOfVaccination"
                   value={formData.dateOfVaccination || ""}

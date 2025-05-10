@@ -16,9 +16,10 @@ const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+
+  const [totalStudents, setTotalStudents] = useState(0);
   // Load page from query params or set default page=1
   useEffect(() => {
-    console.log(searchParams.get("page"), searchParams.get("search"));
     const pageParam = searchParams.get("page") ?? 1;
     const search = searchParams.get("search") ?? "";
     const pageNumber = pageParam ? Number(pageParam) : 1;
@@ -36,6 +37,7 @@ const HomePage = () => {
         if (response) {
           setStudents(response.documents);
           setHasNext(response.hasNext);
+          setTotalStudents(response.total);
         }
         setIsLoading(false);
       }
@@ -72,6 +74,9 @@ const HomePage = () => {
   return (
     <div className="home-container background-fixed">
       <div className="max-w-[1200px] w-full min-h-[100vh] mx-auto pt-10 px-4">
+        <div className="font-bold  text-2xl py-4">
+          Total Students : { totalStudents }
+        </div>
         {/* SEARCH input */}
         <div className="flex flex-col sm:flex-row gap-4">
           <input
@@ -133,16 +138,16 @@ const HomePage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex  flex-row gap-2 mt-2 sm:mt-0">
+                <div className="flex  flex-row gap-2 mt-2 sm:mt-0 items-center">
                   <button
-                    className="btn !px-3 !py-1 !text-lg !flex-1"
+                    className="btn !px-3 !py-1 !text-lg !flex-1 h-fit"
                     onClick={() => navigate(`/create-edit-student/${item.$id}`)}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => openDeleteModal(item.$id)}
-                    className="btn !px-3 !py-1 !text-lg !bg-red-600 !flex-1"
+                    className="btn !px-3 !py-1 !text-lg !bg-red-600 !flex-1 h-fit"
                   >
                     Delete
                   </button>
