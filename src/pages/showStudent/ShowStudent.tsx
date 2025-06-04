@@ -3,14 +3,25 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { StudentType } from "../../types/types";
 import { deleteStudent, getStudentDetails } from "../../lib/appWrite";
-import { FiUser, FiCalendar, FiBook, FiInfo } from "react-icons/fi";
+import {
+  PersonIcon,
+  CalendarIcon,
+  ReaderIcon,
+  InfoCircledIcon,
+} from "@radix-ui/react-icons";
 import { SpinningCircles } from "react-loading-icons";
+import {
+  exportStudentDetailsWithLetterhead,
+  exportStudentDetailsWithoutLetterhead,
+  exportStudentDetailsOnStampPaper,
+} from "../../utils/pdfUtils";
 
 const ShowStudentsPage = () => {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<StudentType | null>(null);
   const navigate = useNavigate();
+  const [exportType, setExportType] = useState("withLetterhead");
 
   useEffect(() => {
     async function getUser() {
@@ -76,13 +87,25 @@ const ShowStudentsPage = () => {
       } catch (error) {
         console.error("Error deleting student", error);
       }
-    } 
+    }
   };
-  const parseDate = (dateStr:string) => {
-    const [day, month, year] = dateStr.split('/');
+
+  const handleExport = async () => {
+    if (!data) return;
+    if (exportType === "withLetterhead") {
+      await exportStudentDetailsWithLetterhead(data);
+    } else if (exportType === "withoutLetterhead") {
+      await exportStudentDetailsWithoutLetterhead(data);
+    } else if (exportType === "onStampPaper") {
+      await exportStudentDetailsOnStampPaper(data);
+    }
+  };
+
+  const parseDate = (dateStr: string) => {
+    const [day, month, year] = dateStr.split("/");
     return new Date(`${year}-${month}-${day}`);
   };
-  
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-extrabold text-center mb-6">
@@ -92,7 +115,7 @@ const ShowStudentsPage = () => {
         {/* Personal Information */}
         <div className="bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105">
           <div className="flex items-center mb-4">
-            <FiUser className="text-3xl text-indigo-600 mr-2" />
+            <PersonIcon className="w-6 h-6 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold">Personal Information</h2>
           </div>
           <p>
@@ -121,7 +144,7 @@ const ShowStudentsPage = () => {
         {/* Educational Information */}
         <div className="bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105">
           <div className="flex items-center mb-4">
-            <FiCalendar className="text-3xl text-indigo-600 mr-2" />
+            <CalendarIcon className="w-6 h-6 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold">Educational Information</h2>
           </div>
           <p>
@@ -148,7 +171,7 @@ const ShowStudentsPage = () => {
         {/* Class Information */}
         <div className="bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105">
           <div className="flex items-center mb-4">
-            <FiBook className="text-3xl text-indigo-600 mr-2" />
+            <ReaderIcon className="w-6 h-6 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold">Class Information</h2>
           </div>
           <p>
@@ -174,7 +197,7 @@ const ShowStudentsPage = () => {
         {/* Additional Information */}
         <div className="bg-white shadow-lg rounded-lg p-6 md:col-span-2 transition-transform transform hover:scale-105">
           <div className="flex items-center mb-4">
-            <FiInfo className="text-3xl text-indigo-600 mr-2" />
+            <InfoCircledIcon className="w-6 h-6 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold">Additional Information</h2>
           </div>
           <p>
@@ -193,7 +216,22 @@ const ShowStudentsPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-row gap-2 mt-3">
+      <div className="flex flex-row gap-2 mt-3 items-center">
+        <select
+          className="border rounded px-2 py-1"
+          value={exportType}
+          onChange={(e) => setExportType(e.target.value)}
+        >
+          <option value="withLetterhead">With Letterhead</option>
+          <option value="withoutLetterhead">Without Letterhead</option>
+          {/* <option value="onStampPaper">On Stamp Paper</option> */}
+        </select>
+        <button
+          className="btn !px-3 !py-1 !text-lg !bg-blue-500"
+          onClick={handleExport}
+        >
+          Export PDF
+        </button>
         <button
           className="btn !px-3 !py-1 !text-lg"
           onClick={() => navigate(`/create-edit-student/${id}`)}

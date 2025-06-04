@@ -82,7 +82,7 @@ export const getStudentsList = async (page = 1, query: string) => {
         Query.limit(100), // Fetch more to allow room for pagination
       ]
     );
-    
+
     const uniqueDocs = Array.from(
       new Map(response.documents.map((doc) => [doc.$id, doc])).values()
     );
@@ -93,7 +93,7 @@ export const getStudentsList = async (page = 1, query: string) => {
     return {
       documents: paginated,
       hasNext,
-      total: response.total
+      total: response.total,
     };
   } catch (error) {
     console.error("Error fetching students list:", error);
@@ -147,5 +147,32 @@ export const getStudentDetails = async (studentId: string) => {
     );
   } catch (error) {
     console.error("Error updating student", error);
+  }
+};
+
+export const getAllStudentsForExport = async () => {
+  try {
+    const response = await database.listDocuments(
+      STUDENTS_DATABASE_ID,
+      STUDENTS_COLLECTION_ID,
+      [Query.orderDesc("$updatedAt")]
+    );
+    return response.documents;
+  } catch (error) {
+    console.error("Error fetching students for export:", error);
+    return null;
+  }
+};
+
+export const getStudentForExport = async (studentId: string) => {
+  try {
+    return await database.getDocument(
+      STUDENTS_DATABASE_ID,
+      STUDENTS_COLLECTION_ID,
+      studentId
+    );
+  } catch (error) {
+    console.error("Error fetching student for export:", error);
+    return null;
   }
 };

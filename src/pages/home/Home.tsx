@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./home.css";
-import { deleteStudent, getStudentsList } from "../../lib/appWrite";
+import {
+  deleteStudent,
+  getStudentsList,
+  getAllStudentsForExport,
+} from "../../lib/appWrite";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { SpinningCircles } from "react-loading-icons";
 import ConfirmModal from "../../components/confirmModal";
+import { exportStudentsTable } from "../../utils/pdfUtils";
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -71,11 +76,22 @@ const HomePage = () => {
     setSearchParams({ page: "1", search: searchQuery });
   };
 
+  const handleExport = async () => {
+    try {
+      const students = await getAllStudentsForExport();
+      if (students) {
+        await exportStudentsTable(students);
+      }
+    } catch (error) {
+      console.error("Error exporting students:", error);
+    }
+  };
+
   return (
     <div className="home-container background-fixed">
       <div className="max-w-[1200px] w-full min-h-[100vh] mx-auto pt-10 px-4">
         <div className="font-bold  text-2xl py-4">
-          Total Students : { totalStudents }
+          Total Students : {totalStudents}
         </div>
         {/* SEARCH input */}
         <div className="flex flex-col sm:flex-row gap-4">
@@ -96,6 +112,12 @@ const HomePage = () => {
             onClick={handleSearch}
           >
             Search
+          </button>
+          <button
+            className="btn !m-0 !hover:bg-none px-4 py-2 !bg-blue-500"
+            onClick={handleExport}
+          >
+            Export Students
           </button>
           <button
             className="btn !m-0 !hover:bg-none  px-4 py-2"
